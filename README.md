@@ -10,7 +10,7 @@ https://documenter.getpostman.com/view/36300872/2sAYdhKADe
 ## Endpoints
 1. POST /notes
 Description: Create a new note.
-``
+```
 Request Body:
 json
 Copy
@@ -19,7 +19,7 @@ Edit
   "title": "string",
   "content": "string"
 }
-``
+```
 Response: 200 - Note created successfully.
 3. GET /notes
 Description: Retrieve all notes.
