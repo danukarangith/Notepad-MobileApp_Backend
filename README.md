@@ -16,7 +16,10 @@ https://documenter.getpostman.com/view/36300872/2sAYdhKADe
 ## Installation
 
 - Clone the repository
-- 
+  ```bash
+ 
+git clone https://github.com/danukarangith/Notepad-MobileApp_Backend.git
+```
 Install dependencies:
 ```bash
 npm install
