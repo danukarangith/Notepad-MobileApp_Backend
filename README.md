@@ -43,20 +43,20 @@ json
   "content": "string"
 }
 ```
-- Response: 200 - Note updated.
+- Response: 200 - Note updated
 6. DELETE /notes/:id
 
 - Description: Delete a note.
-```Response: 200 - Note deleted.
+```Response: 200 - Note deleted
 ```
 ## Installation
 
 - Clone the repository.
 Install dependencies:
-``` npm install.
+``` npm install
 ```
 - Start the server: 
-```npm start.
+```npm start
 ```
 ## Requirements
 Node.js
