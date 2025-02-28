@@ -16,7 +16,9 @@
     "@types/node": "^22.13.5"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.ts"
+
   },
   "keywords": [],
   "author": "",
