@@ -213,11 +213,12 @@ app.get('/api/notes/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Create a note
-app.post('/api/notes', authenticateToken, async (req, res) => {
+// Create a note with image(s)
+app.post('/api/notes', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
         const { title, content, category } = req.body;
 
+        // Create note
         const note = await prisma.note.create({
             data: {
                 title,
@@ -227,14 +228,31 @@ app.post('/api/notes', authenticateToken, async (req, res) => {
             }
         });
 
+        // Handle image uploads and associate with note
+        if (req.files && req.files.length > 0) {
+            const imagePromises = req.files.map((file) =>
+                prisma.image.create({
+                    data: {
+                        filename: file.filename,
+                        path: 'uploads/' + file.filename,
+                        mimetype: file.mimetype,
+                        size: file.size,
+                        noteId: note.id
+                    }
+                })
+            );
+
+            await Promise.all(imagePromises);
+        }
+
         res.status(201).json(note);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-// Update a note
-app.put('/api/notes/:id', authenticateToken, async (req, res) => {
+// Update a note with image(s)
+app.put('/api/notes/:id', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
         const { title, content, category } = req.body;
         const noteId = parseInt(req.params.id);
@@ -259,12 +277,26 @@ app.put('/api/notes/:id', authenticateToken, async (req, res) => {
             data: {
                 title: title || existingNote.title,
                 content: content || existingNote.content,
-                category: category || existingNote.category,
-            },
-            include: {
-                images: true
+                category: category || existingNote.category
             }
         });
+
+        // Handle image uploads and associate with note
+        if (req.files && req.files.length > 0) {
+            const imagePromises = req.files.map((file) =>
+                prisma.image.create({
+                    data: {
+                        filename: file.filename,
+                        path: 'uploads/' + file.filename,
+                        mimetype: file.mimetype,
+                        size: file.size,
+                        noteId: updatedNote.id
+                    }
+                })
+            );
+
+            await Promise.all(imagePromises);
+        }
 
         res.status(200).json(updatedNote);
     } catch (err) {
@@ -314,60 +346,6 @@ app.delete('/api/notes/:id', authenticateToken, async (req, res) => {
 });
 
 // IMAGE ROUTES
-// Upload image to a note
-app.post('/api/notes/:id/images', authenticateToken, upload.single('image'), async (req, res) => {
-    try {
-        const noteId = parseInt(req.params.id);
-
-        // Check if note exists and belongs to user
-        const note = await prisma.note.findFirst({
-            where: {
-                id: noteId,
-                userId: req.user.id
-            }
-        });
-
-        if (!note) {
-            // Remove uploaded file if note doesn't exist
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
-            return res.status(404).json({ message: 'Note not found' });
-        }
-
-        if (!req.file) {
-            return res.status(400).json({ message: 'No image uploaded' });
-        }
-
-        // Save image record to database
-        const image = await prisma.image.create({
-            data: {
-                filename: req.file.filename,
-                path: 'uploads/' + req.file.filename,
-                mimetype: req.file.mimetype,
-                size: req.file.size,
-                noteId: noteId
-            }
-        });
-
-        res.status(201).json({
-            message: 'Image uploaded successfully',
-            image: {
-                id: image.id,
-                filename: image.filename,
-                path: image.path,
-                url: `${req.protocol}://${req.get('host')}/${image.path}`
-            }
-        });
-    } catch (err) {
-        // Remove uploaded file if an error occurs
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
-        res.status(500).json({ message: err.message });
-    }
-});
-
 // Delete an image
 app.delete('/api/images/:id', authenticateToken, async (req, res) => {
     try {
