@@ -29,6 +29,6 @@ npm install
 npm start
 ```
 ## Requirements
-Node.js
-Express
-Postman (for testing the API)
+- Node.js
+- Express
+- Postman (for testing the API)
